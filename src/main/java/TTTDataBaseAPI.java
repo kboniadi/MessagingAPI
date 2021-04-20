@@ -15,7 +15,6 @@ public class TTTDataBaseAPI implements AutoCloseable {
     }
 
     public CompletableFuture<String> getPlayerInfo(String name, String... typeOf) {
-
     }
 
     public CompletableFuture<String> getGameInfo(String gameName, String... typeOf) {
