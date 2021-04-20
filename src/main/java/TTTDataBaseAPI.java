@@ -1,10 +1,16 @@
-import java.io.Closeable;
+import org.json.JSONObject;
+import utils.BufferWrapper;
+
+import java.io.*;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TTTDataBaseAPI implements AutoCloseable {
     private final ExecutorService server;
+    private BufferWrapper buffer;
 
     public TTTDataBaseAPI() {
         this(ThreadCount.FOUR);
@@ -12,9 +18,23 @@ public class TTTDataBaseAPI implements AutoCloseable {
 
     public TTTDataBaseAPI(ThreadCount count) {
         server = Executors.newFixedThreadPool(count.toInt());
+        try (var socket = new Socket("45.57.226.7", 9001)) {
+            buffer = new BufferWrapper.Builder()
+                    .withWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)))
+                    .withReader(new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8)))
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public CompletableFuture<String> getPlayerInfo(String name, String... typeOf) {
+    public CompletableFuture<String> getPlayerInfo(String name, String typeOf) {
+        JSONObject json = new JSONObject();
+        json.put("name", name);
+        json.put("typeOf", typeOf);
+        return CompletableFuture.supplyAsync(() -> {
+
+        }, server);
     }
 
     public CompletableFuture<String> getGameInfo(String gameName, String... typeOf) {
