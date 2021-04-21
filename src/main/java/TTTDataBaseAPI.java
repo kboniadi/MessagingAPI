@@ -1,4 +1,5 @@
 import org.json.JSONObject;
+
 import utils.BufferWrapper;
 
 import java.io.*;
@@ -9,58 +10,88 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class TTTDataBaseAPI implements AutoCloseable {
-    private final ExecutorService server;
-    private BufferWrapper buffer;
+    private static final String serverAddress = "45.57.226.7";
+    private ExecutorService server;
+    private Socket socket;
+    public BufferWrapper buffer;
 
-    public TTTDataBaseAPI() {
+    public static void main(String[] args) {
+        try {
+            TTTDataBaseAPI api = new TTTDataBaseAPI();
+
+            api.getPlayerInfo("kord", "nothing").thenAccept((event) -> {
+                System.out.println(event);
+            });
+
+            System.out.println("ths was actually afjer db call");
+        } catch (Exception e) {
+            System.out.println("end");
+        }
+        
+        
+    }
+
+    public TTTDataBaseAPI() throws Exception {
         this(ThreadCount.FOUR);
     }
 
-    public TTTDataBaseAPI(ThreadCount count) {
+    public TTTDataBaseAPI(ThreadCount count) throws Exception {
         server = Executors.newFixedThreadPool(count.toInt());
-        try (var socket = new Socket("45.57.226.7", 9001)) {
-            buffer = new BufferWrapper.Builder()
-                    .withWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)))
-                    .withReader(new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8)))
-                    .build();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        socket = new Socket(serverAddress, 9000);
+        buffer = new BufferWrapper.Builder()
+                .withWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8)))
+                .withReader(new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8)))
+                .build();
     }
 
     public CompletableFuture<String> getPlayerInfo(String name, String typeOf) {
         JSONObject json = new JSONObject();
+        json.put("type", "PlayerInfo");
         json.put("name", name);
         json.put("typeOf", typeOf);
         return CompletableFuture.supplyAsync(() -> {
+            buffer.writeLine(json.toString());
 
+            String value;
+
+            try {
+                while ((value = buffer.readLine()) != null) {
+                    return value;
+                }
+                throw new IOException("Server returned null");
+            } catch (IOException e) {
+                System.out.println("There may have been a lose of connection");
+                e.printStackTrace();
+            }
+            return null;
         }, server);
     }
 
-    public CompletableFuture<String> getGameInfo(String gameName, String... typeOf) {
-
-    }
-
-    public void playerSignUp(String userName, String password, String firstName, String lastName) {
-
-    }
-
-    public void playerSignUp(String json) {
-
-    }
-
-    public CompletableFuture<Boolean> playerSignIn(String userName, String password) {
-
-    }
-
-    public CompletableFuture<Boolean> deleteAccount(String userName, String password) {
-
-    }
+//    public CompletableFuture<String> getGameInfo(String gameName, String... typeOf) {
+//
+//    }
+//
+//    public void playerSignUp(String userName, String password, String firstName, String lastName) {
+//
+//    }
+//
+//    public void playerSignUp(String json) {
+//
+//    }
+//
+//    public CompletableFuture<Boolean> playerSignIn(String userName, String password) {
+//
+//    }
+//
+//    public CompletableFuture<Boolean> deleteAccount(String userName, String password) {
+//
+//    }
 
     public void freeThreadPool() {
         try {
             server.shutdown();
-        } catch (SecurityException e) {
+            socket.close();
+        } catch (SecurityException | IOException e) {
             e.printStackTrace();
         }
     }
@@ -114,7 +145,8 @@ public class TTTDataBaseAPI implements AutoCloseable {
     public void close() throws Exception {
         try {
             server.shutdown();
-        } catch (SecurityException e) {
+            socket.close();
+        } catch (SecurityException | IOException e) {
             throw new Exception("Something went wrong in -> { TTTDataBaseAPI.class }");
         }
     }
