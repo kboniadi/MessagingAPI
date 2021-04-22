@@ -23,7 +23,7 @@ public class TTTDataBaseAPI implements AutoCloseable {
                 System.out.println(event);
             });
 
-            System.out.println("ths was actually afjer db call");
+            System.out.println("this statement was actually invoked after the db call!!");
         } catch (Exception e) {
             System.out.println("end");
         }
@@ -66,7 +66,31 @@ public class TTTDataBaseAPI implements AutoCloseable {
             return null;
         }, server);
     }
+    
+    public CompletableFuture<Boolean> createAccount(String firstName, String lastName, String userName, String password) {
+        JSONObject json = new JSONObject();
+        json.put("type", "CreateAccount");
+        json.put("firstname", firstName);
+        json.put("lastname", lastName);
+        json.put("username", userName);
+        json.put("password", password);
+        return CompletableFuture.supplyAsync(() -> {
+            buffer.writeLine(json.toString());
 
+            String value;
+
+            try {
+                while ((value = buffer.readLine()) != null) {
+                    return value;
+                }
+                throw new IOException("Server returned null");
+            } catch (IOException e) {
+                System.out.println("There may have been a lose of connection");
+                e.printStackTrace();
+            }
+            return null;
+        }, server);
+    }
 //    public CompletableFuture<String> getGameInfo(String gameName, String... typeOf) {
 //
 //    }
