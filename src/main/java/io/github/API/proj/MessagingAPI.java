@@ -241,7 +241,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
      * @author Grant Goldsworth
      */
     public CompletableFuture<String> deleteAccount(String userName) {
-        return null;
+        return null; // should return true if successful?
     }
 //
 //    public CompletableFuture<String> verifyPassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
@@ -262,10 +262,15 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
      * Update's the user's first name (person name) on the database.
      * @param userName user account name
      * @param firstName new name to use
+     * @throws IOException if JSON creation fails
      * @return a future event JSON string
      */
-    public CompletableFuture<String> updateFirstName(String userName, String firstName) { // returns json containing { "isSuccess: "true | false" }
-        return null;
+    public CompletableFuture<String> updateFirstName(String userName, String firstName) throws IOException { // returns json containing { "isSuccess: "true | false" }
+        return getStringCompletableFuture(
+                addJsonType("{}", "UpdateFirstName")
+                .put("username", userName)
+                .put("firstname", firstName)
+        );
     }
 //
 //    public CompletableFuture<String> updateLastName(String userName, String lastName) { // returns json containing { "isSuccess: "true | false" }
