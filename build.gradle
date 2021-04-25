@@ -28,11 +28,11 @@ sourceSets {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'io.github.API.proj.TicTacToeAPI'
+        attributes 'Main-Class': 'io.github.API.proj.MessagingAPI'
     }
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
-mainClassName = 'io.github.API.proj.TicTacToeAPI'
+mainClassName = 'io.github.API.proj.MessagingAPI'

@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TicTacToeAPI extends AbstractEventManager implements AutoCloseable, IChannel, IChannels, IMessage, IExecute {
+public class MessagingAPI extends AbstractEventManager implements AutoCloseable, IChannel, IChannels, IMessage, IExecute {
     private final String serverAddress = "45.57.226.7";     // IP For remote Server
     private final ExecutorService server;                   // Thread pool for DB calls
     private final Socket mainSocket;                        // Persistent Server connection for api
@@ -22,8 +22,8 @@ public class TicTacToeAPI extends AbstractEventManager implements AutoCloseable,
 
     public static void main(String[] args) {
         try {
-            TicTacToeAPI api = new TicTacToeAPI(ThreadCount.FOUR);
-            TicTacToeAPI api2 = new TicTacToeAPI(ThreadCount.SYS_DEP);
+            MessagingAPI api = new MessagingAPI(ThreadCount.FOUR);
+            MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
 
             api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
             api2.subscribe().channels("channel2").execute();                // register api to listen to a channel
@@ -74,7 +74,7 @@ public class TicTacToeAPI extends AbstractEventManager implements AutoCloseable,
      * @throws IOException from socket connection
      * @author Kord Boniadi
      */
-    public TicTacToeAPI() throws IOException {
+    public MessagingAPI() throws IOException {
         this(ThreadCount.FOUR);
     }
 
@@ -84,7 +84,7 @@ public class TicTacToeAPI extends AbstractEventManager implements AutoCloseable,
      * @throws IOException from socket connection
      * @author Kord Boniadi
      */
-    public TicTacToeAPI(ThreadCount count) throws IOException {
+    public MessagingAPI(ThreadCount count) throws IOException {
         server = Executors.newFixedThreadPool(count.toInt());
         mainSocket = new Socket(serverAddress, 9000);
         buffer = new BufferWrapper.Builder()

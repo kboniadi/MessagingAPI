@@ -34,7 +34,7 @@ abstract class AbstractEventManager {
         }
     }
 
-    protected void publish(TicTacToeAPI api, String channel, String json) {
+    protected void publish(MessagingAPI api, String channel, String json) {
         Objects.requireNonNull(channel);
         Objects.requireNonNull(json);
         Set<ISubscribeCallback> callbacks = list.get(channel);
