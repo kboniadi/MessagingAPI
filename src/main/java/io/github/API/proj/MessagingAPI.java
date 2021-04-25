@@ -24,7 +24,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
         try {
             MessagingAPI api = new MessagingAPI(ThreadCount.FOUR);
             MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
-
+            api.getPlayerInfo("kord");
             api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
             api2.subscribe().channels("channel2").execute();                // register api to listen to a channel
 
@@ -230,27 +230,29 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //
 //
 //    public CompletableFuture<String> deleteAccount(String userName) {
+//        //grant
 //        // change delete column flag
 //    }
 //
 //    public CompletableFuture<String> verifyPassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
-//
+//        // utsav
 //    }
 //
 //    public CompletableFuture<String> updateUserName(String oldUserName, String newUserName) { // returns json containing { "isSuccess: "true | false" }
-//
+//        // joey
+//        // make sure to handle duplicates
 //    }
 //
 //    public CompletableFuture<String> updatePassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
-//
+//        // utsav
 //    }
 //
 //    public CompletableFuture<String> updateFirstName(String userName, String firstName) { // returns json containing { "isSuccess: "true | false" }
-//
+//        //grant
 //    }
 //
 //    public CompletableFuture<String> updateLastName(String userName, String lastName) { // returns json containing { "isSuccess: "true | false" }
-//
+//        // joey
 //    }
 
     /**
