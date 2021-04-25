@@ -229,10 +229,20 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //    }
 //
 //
-//    public CompletableFuture<String> deleteAccount(String userName) {
-//        //grant
-//        // change delete column flag
-//    }
+
+    /**
+     * Should technically do nothing. WIP
+     * <p>
+     * Account deletion is soft; i.e. the account persists in
+     * the database and its {@code isDeleted} flag is set to {@code true}
+     * </p>
+     * @param userName user name of the account to flag as deleted
+     * @return Future event involving a JSON string (NULL for now)
+     * @author Grant Goldsworth
+     */
+    public CompletableFuture<String> deleteAccount(String userName) {
+        return null;
+    }
 //
 //    public CompletableFuture<String> verifyPassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
 //        // utsav
@@ -247,9 +257,16 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //        // utsav
 //    }
 //
-//    public CompletableFuture<String> updateFirstName(String userName, String firstName) { // returns json containing { "isSuccess: "true | false" }
-//        //grant
-//    }
+
+    /**
+     * Update's the user's first name (person name) on the database.
+     * @param userName user account name
+     * @param firstName new name to use
+     * @return a future event JSON string
+     */
+    public CompletableFuture<String> updateFirstName(String userName, String firstName) { // returns json containing { "isSuccess: "true | false" }
+        return null;
+    }
 //
 //    public CompletableFuture<String> updateLastName(String userName, String lastName) { // returns json containing { "isSuccess: "true | false" }
 //        // joey
