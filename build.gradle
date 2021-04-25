@@ -20,4 +20,19 @@ test {
     useJUnitPlatform()
 }
 
-mainClassName = 'TTTDataBaseAPI'
+sourceSets {
+    main {
+        output.setResourcesDir(java.outputDir)
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'io.github.API.proj.TicTacToeAPI'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+mainClassName = 'io.github.API.proj.TicTacToeAPI'

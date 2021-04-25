@@ -1,4 +1,4 @@
-package utils;
+package io.github.API.proj.utils;
 
 import java.io.*;
 import java.util.Objects;
@@ -35,6 +35,11 @@ public class BufferWrapper {
         len = reader.read(b);
         response = new String(b, 0, len);
         return response;
+    }
+
+    public void close() throws IOException {
+        this.writer.close();
+        this.reader.close();
     }
 
 
