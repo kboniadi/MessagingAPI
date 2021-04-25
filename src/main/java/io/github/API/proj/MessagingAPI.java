@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MessagingAPI extends AbstractEventManager implements AutoCloseable, IChannel, IChannels, IMessage, IExecute {
-    private final String serverAddress = "localhost";     // IP For remote Server
+    private final String serverAddress = "45.57.226.7";     // IP For remote Server
     private final ExecutorService server;                   // Thread pool for DB calls
     private final Socket mainSocket;                        // Persistent Server connection for api
     private final BufferWrapper buffer;                     // read/write wrapper for tcp throughput
@@ -24,8 +24,9 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
         try {
             MessagingAPI api = new MessagingAPI(ThreadCount.FOUR);
             MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
+            api.getPlayerInfo("kord");
             api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
-            api2.subscribe().channels("channel3").execute();                // register api to listen to a channel
+            api2.subscribe().channels("channel2").execute();                // register api to listen to a channel
 
             api.addEventListener((apiRef, json) -> {            // callback event listener
                 System.out.println("IT WORKED!!! Message received from \"channel1\" and \"channel2\" on api");
@@ -38,7 +39,12 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
             }, "channel2");
 
             api2.addEventListener((apiRef, json) -> {           // callback event listener
-                System.out.println("IT WORKED!!! Message received from channel3 on api2");
+                System.out.println("IT WORKED!!! Message received from channel2 on api2");
+                System.out.println(json);
+            }, "channel2");
+
+            api2.addEventListener((apiRef, json) -> {           // callback event listener
+                System.out.println("This should not work!!! Message received from channel3 on api2");
                 System.out.println(json);
             }, "channel3");
 
@@ -53,7 +59,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
                     .put("haircolor", "blond").put("utsav", new JSONArray(Arrays.stream(new String[]{"one222222222222222222222", "two", "three", "four"}).toArray())).toString()).execute();
 
             // sending message to a channel
-            api2.publish().channel("channel3").message(api2.addJsonType("{}", "Message")
+            api2.publish().channel("channel3").message(api.addJsonType("{}", "Message")
                     .put("name", "kevin")
                     .put("haircolor", "black").put("utsav", new JSONArray(Arrays.stream(new String[]{"one333333333333333333333", "two", "three", "four"}).toArray())).toString()).execute();
 
@@ -217,15 +223,26 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
         );
     }
 
+
 //    public CompletableFuture<String> getGameHistoryInfo(String userName) {
 //
 //    }
 //
 //
-//    public CompletableFuture<String> deleteAccount(String userName) {
-//        // grant
-//        // change delete column flag
-//    }
+
+    /**
+     * Should technically do nothing. WIP
+     * <p>
+     * Account deletion is soft; i.e. the account persists in
+     * the database and its {@code isDeleted} flag is set to {@code true}
+     * </p>
+     * @param userName user name of the account to flag as deleted
+     * @return Future event involving a JSON string (NULL for now)
+     * @author Grant Goldsworth
+     */
+    public CompletableFuture<String> deleteAccount(String userName) {
+        return null;
+    }
 //
 //    public CompletableFuture<String> verifyPassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
 //        // utsav
@@ -251,9 +268,16 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //        // utsav
 //    }
 //
-//    public CompletableFuture<String> updateFirstName(String userName, String firstName) { // returns json containing { "isSuccess: "true | false" }
-//        //grant
-//    }
+
+    /**
+     * Update's the user's first name (person name) on the database.
+     * @param userName user account name
+     * @param firstName new name to use
+     * @return a future event JSON string
+     */
+    public CompletableFuture<String> updateFirstName(String userName, String firstName) { // returns json containing { "isSuccess: "true | false" }
+        return null;
+    }
 //
 
     /**
