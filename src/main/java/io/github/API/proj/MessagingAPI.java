@@ -234,18 +234,42 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //        // change delete column flag
 //    }
 //
-//    public CompletableFuture<String> verifyPassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
-//        // utsav
-//    }
+    /**
+     * @param userName userName
+     * @param password password
+     * @return Future event resolving to a json String
+     * @throws IOException from socket connection
+     * @author Kord Boniadi
+     */
+    public CompletableFuture<String> verifyPassword(String userName, String password) throws IOException {
+        // utsav
+        return getStringCompletableFuture(
+                addJsonType("{}", "VerifyPassword")
+                .put("username", userName)
+                .put("password", password)
+        );
+    }
 //
 //    public CompletableFuture<String> updateUserName(String oldUserName, String newUserName) { // returns json containing { "isSuccess: "true | false" }
 //        // joey
 //        // make sure to handle duplicates
 //    }
 //
-//    public CompletableFuture<String> updatePassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
-//        // utsav
-//    }
+    /**
+     * @param userName userName
+     * @param password password
+     * @return Future event resolving to a json String
+     * @throws IOException from socket connection
+     * @author Kord Boniadi
+     */
+    public CompletableFuture<String> updatePassword(String userName, String password) throws IOException { // returns json containing { "isSuccess: "true | false" }
+        // utsav
+        return getStringCompletableFuture(
+                addJsonType("{}", "UpdatePassword")
+                        .put("username", userName)
+                        .put("password", password)
+        );
+    }
 //
 //    public CompletableFuture<String> updateFirstName(String userName, String firstName) { // returns json containing { "isSuccess: "true | false" }
 //        //grant
