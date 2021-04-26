@@ -61,7 +61,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
             System.out.println("this statement was actually invoked last!!");
 
             //testing verify password
-            api.verifyPassword("pd", "PUSSYDESTROYER").thenAccept((json)->{
+            api.verifyPassword("pd", "PDESTROYER").thenAccept((json)->{
                 System.out.println("HERE: " + json);
             });
 
