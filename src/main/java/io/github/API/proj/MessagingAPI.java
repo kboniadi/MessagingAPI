@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MessagingAPI extends AbstractEventManager implements AutoCloseable, IChannel, IChannels, IMessage, IExecute {
-    private final String serverAddress = "45.57.226.7";     // IP For remote Server
+    private final String serverAddress = "localhost";     // IP For remote Server
     private final ExecutorService server;                   // Thread pool for DB calls
     private final Socket mainSocket;                        // Persistent Server connection for api
     private final BufferWrapper buffer;                     // read/write wrapper for tcp throughput
@@ -24,9 +24,9 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
         try {
             MessagingAPI api = new MessagingAPI(ThreadCount.FOUR);
             MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
-            api.getPlayerInfo("kord");
+
             api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
-            api2.subscribe().channels("channel2").execute();                // register api to listen to a channel
+            api2.subscribe().channels("channel3").execute();                // register api to listen to a channel
 
             api.addEventListener((apiRef, json) -> {            // callback event listener
                 System.out.println("IT WORKED!!! Message received from \"channel1\" and \"channel2\" on api");
@@ -39,12 +39,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
             }, "channel2");
 
             api2.addEventListener((apiRef, json) -> {           // callback event listener
-                System.out.println("IT WORKED!!! Message received from channel2 on api2");
-                System.out.println(json);
-            }, "channel2");
-
-            api2.addEventListener((apiRef, json) -> {           // callback event listener
-                System.out.println("This should not work!!! Message received from channel3 on api2");
+                System.out.println("IT WORKED!!! Message received from channel3 on api2");
                 System.out.println(json);
             }, "channel3");
 
@@ -59,7 +54,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
                     .put("haircolor", "blond").put("utsav", new JSONArray(Arrays.stream(new String[]{"one222222222222222222222", "two", "three", "four"}).toArray())).toString()).execute();
 
             // sending message to a channel
-            api2.publish().channel("channel3").message(api.addJsonType("{}", "Message")
+            api2.publish().channel("channel3").message(api2.addJsonType("{}", "Message")
                     .put("name", "kevin")
                     .put("haircolor", "black").put("utsav", new JSONArray(Arrays.stream(new String[]{"one333333333333333333333", "two", "three", "four"}).toArray())).toString()).execute();
 
