@@ -41,15 +41,10 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
                 System.out.println("IT WORKED!!! Message received from channel3 on api2");
                 System.out.println(json);
             }, "channel3");
-            System.out.println();
-            System.out.println();
-            System.out.println();
 
-            System.out.println(api.updateLastName("admin", "campbell"));
-
-            System.out.println();
-            System.out.println();
-
+            api.updateLastName("admin", "poop").thenAccept((json)->{
+                System.out.println("HERE: " + json);
+            });
 
             // sending message to a channel
             api.publish().channel("channel1").message(api.addJsonType("{}", "Message")
@@ -240,10 +235,12 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //        // utsav
 //    }
 //
-//    public CompletableFuture<String> updateUserName(String oldUserName, String newUserName) { // returns json containing { "isSuccess: "true | false" }
-//        // joey
-//        // make sure to handle duplicates
-//    }
+    public CompletableFuture<String> updateUserName(String oldUserName, String newUserName) { // returns json containing { "isSuccess: "true | false" }
+        return getStringCompletableFuture(addJsonType("{}", "UpdateUserName")
+                .put("oldusername", oldUserName)
+                .put("newusername", newUserName)
+        );
+    }
 //
 //    public CompletableFuture<String> updatePassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
 //        // utsav
