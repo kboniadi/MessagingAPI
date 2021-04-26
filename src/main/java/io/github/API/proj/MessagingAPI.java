@@ -42,10 +42,6 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
                 System.out.println(json);
             }, "channel3");
 
-            api.updateLastName("admin", "poop").thenAccept((json)->{
-                System.out.println("HERE: " + json);
-            });
-
             // sending message to a channel
             api.publish().channel("channel1").message(api.addJsonType("{}", "Message")
                     .put("name", "tim")
@@ -235,7 +231,16 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //        // utsav
 //    }
 //
-    public CompletableFuture<String> updateUserName(String oldUserName, String newUserName) { // returns json containing { "isSuccess: "true | false" }
+
+    /**
+     * Called from the api, this method update's the user's username - the username must be unique.
+     * @param oldUserName The user's original username which is being updated.
+     * @param newUserName The user's new username - has to be unique
+     * @return A completable future as a string (will contain either "true" or "false")
+     * @throws IOException from socket connection
+     * @author Joey Campbell
+     */
+    public CompletableFuture<String> updateUserName(String oldUserName, String newUserName) throws IOException { // returns json containing { "isSuccess: "true | false" }
         return getStringCompletableFuture(addJsonType("{}", "UpdateUserName")
                 .put("oldusername", oldUserName)
                 .put("newusername", newUserName)
@@ -250,6 +255,15 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //        //grant
 //    }
 //
+
+    /**
+     * Called from the api, this method updates the user's last name.
+     * @param userName The username of the user who is switching their last name
+     * @param lastName The new last name for the user
+     * @return A completable future as a string (will contain either "true" or "false")
+     * @throws IOException from socket connection
+     * @author Joey Campbell
+     */
     public CompletableFuture<String> updateLastName(String userName, String lastName) throws IOException { // returns json containing { "isSuccess: "true | false" }
         // joey
         return getStringCompletableFuture(
