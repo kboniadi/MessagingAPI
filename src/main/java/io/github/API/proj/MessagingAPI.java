@@ -24,7 +24,6 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
         try {
             MessagingAPI api = new MessagingAPI(ThreadCount.FOUR);
             MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
-
             api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
             api2.subscribe().channels("channel3").execute();                // register api to listen to a channel
 
@@ -42,6 +41,15 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
                 System.out.println("IT WORKED!!! Message received from channel3 on api2");
                 System.out.println(json);
             }, "channel3");
+            System.out.println();
+            System.out.println();
+            System.out.println();
+
+            System.out.println(api.updateLastName("admin", "campbell"));
+
+            System.out.println();
+            System.out.println();
+
 
             // sending message to a channel
             api.publish().channel("channel1").message(api.addJsonType("{}", "Message")
@@ -218,14 +226,13 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
         );
     }
 
-
 //    public CompletableFuture<String> getGameHistoryInfo(String userName) {
 //
 //    }
 //
 //
 //    public CompletableFuture<String> deleteAccount(String userName) {
-//        //grant
+//        // grant
 //        // change delete column flag
 //    }
 //
@@ -246,9 +253,14 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //        //grant
 //    }
 //
-//    public CompletableFuture<String> updateLastName(String userName, String lastName) { // returns json containing { "isSuccess: "true | false" }
-//        // joey
-//    }
+    public CompletableFuture<String> updateLastName(String userName, String lastName) throws IOException { // returns json containing { "isSuccess: "true | false" }
+        // joey
+        return getStringCompletableFuture(
+                addJsonType("{}", "UpdateLastName")
+                .put("username", userName)
+                .put("lastname", lastName)
+        );
+    }
 
     /**
      * Free's up api allocated resources
