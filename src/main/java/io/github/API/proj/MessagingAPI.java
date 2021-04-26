@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MessagingAPI extends AbstractEventManager implements AutoCloseable, IChannel, IChannels, IMessage, IExecute {
-    private final String serverAddress = "45.57.226.7";     // IP For remote Server
+    private final String serverAddress = "localhost";     // IP For remote Server
     private final ExecutorService server;                   // Thread pool for DB calls
     private final Socket mainSocket;                        // Persistent Server connection for api
     private final BufferWrapper buffer;                     // read/write wrapper for tcp throughput
@@ -24,7 +24,6 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
         try {
             MessagingAPI api = new MessagingAPI(ThreadCount.FOUR);
             MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
-            api.getPlayerInfo("kord");
             api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
             api2.subscribe().channels("channel2").execute();                // register api to listen to a channel
 
@@ -64,6 +63,17 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
                     .put("haircolor", "black").put("utsav", new JSONArray(Arrays.stream(new String[]{"one333333333333333333333", "two", "three", "four"}).toArray())).toString()).execute();
 
             System.out.println("this statement was actually invoked last!!");
+
+            //testing verify password
+            api.verifyPassword("pd", "PUSSYDESTROYER").thenAccept((json)->{
+                System.out.println("HERE: " + json);
+            });
+
+            //testing update password
+            api.updatePassword("pd", "ysl").thenAccept((json)->{
+                System.out.println("NEW: " + json);
+            });
+
         } catch (Exception e) {
             System.out.println("end");
         }
@@ -235,11 +245,12 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //    }
 //
     /**
+     * This method will verify the password
      * @param userName userName
      * @param password password
      * @return Future event resolving to a json String
      * @throws IOException from socket connection
-     * @author Kord Boniadi
+     * @author Utsav Parajuli
      */
     public CompletableFuture<String> verifyPassword(String userName, String password) throws IOException {
         // utsav
@@ -256,18 +267,19 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //    }
 //
     /**
+     * This method will update the password
      * @param userName userName
      * @param password password
      * @return Future event resolving to a json String
      * @throws IOException from socket connection
-     * @author Kord Boniadi
+     * @author Utsav Parjauli
      */
     public CompletableFuture<String> updatePassword(String userName, String password) throws IOException { // returns json containing { "isSuccess: "true | false" }
         // utsav
         return getStringCompletableFuture(
                 addJsonType("{}", "UpdatePassword")
-                        .put("username", userName)
                         .put("password", password)
+                        .put("username", userName)
         );
     }
 //
