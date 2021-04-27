@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MessagingAPI extends AbstractEventManager implements AutoCloseable, IChannel, IChannels, IMessage, IExecute {
-    private final String serverAddress = "45.57.226.7";     // IP For remote Server
+    private final String serverAddress = "localhost";     // IP For remote Server
     private final ExecutorService server;                   // Thread pool for DB calls
     private final Socket mainSocket;                        // Persistent Server connection for api
     private final BufferWrapper buffer;                     // read/write wrapper for tcp throughput
@@ -24,7 +24,9 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
         try {
             MessagingAPI api = new MessagingAPI(ThreadCount.FOUR);
             MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
-            api.getPlayerInfo("kord");
+            api.updateFirstName("admin", "newName").thenAccept((json)->{
+                System.out.println(json);
+            });
             api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
             api2.subscribe().channels("channel2").execute();                // register api to listen to a channel
 
@@ -231,17 +233,22 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //
 
     /**
-     * Should technically do nothing. WIP
+     * Creates a JSON future that encapsulates a delete account message. The
+     * message contains the username of the account to be marked as deleted.
      * <p>
      * Account deletion is soft; i.e. the account persists in
      * the database and its {@code isDeleted} flag is set to {@code true}
      * </p>
      * @param userName user name of the account to flag as deleted
      * @return Future event involving a JSON string (NULL for now)
+     * @throws IOException from socket connection
      * @author Grant Goldsworth
      */
-    public CompletableFuture<String> deleteAccount(String userName) {
-        return null; // should return true if successful?
+    public CompletableFuture<String> deleteAccount(String userName) throws IOException {
+        return getStringCompletableFuture(
+                addJsonType("{}", "DeleteAccount")
+                .put("username",userName)
+        );
     }
 //
 //    public CompletableFuture<String> verifyPassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
@@ -270,11 +277,12 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //
 
     /**
-     * Update's the user's first name (person name) on the database.
+     * Creates a JSOn future object that encapsulates a first name update message.
      * @param userName user account name
      * @param firstName new name to use
-     * @throws IOException if JSON creation fails
      * @return a future event JSON string
+     * @throws IOException from socket connection
+     * @author Grant Goldsworth
      */
     public CompletableFuture<String> updateFirstName(String userName, String firstName) throws IOException { // returns json containing { "isSuccess: "true | false" }
         return getStringCompletableFuture(
