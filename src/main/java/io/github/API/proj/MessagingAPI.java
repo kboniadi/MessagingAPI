@@ -24,7 +24,6 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
         try {
             MessagingAPI api = new MessagingAPI(ThreadCount.FOUR);
             MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
-
             api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
             api2.subscribe().channels("channel3").execute();                // register api to listen to a channel
 
@@ -218,14 +217,13 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
         );
     }
 
-
 //    public CompletableFuture<String> getGameHistoryInfo(String userName) {
 //
 //    }
 //
 //
 //    public CompletableFuture<String> deleteAccount(String userName) {
-//        //grant
+//        // grant
 //        // change delete column flag
 //    }
 //
@@ -233,10 +231,21 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //        // utsav
 //    }
 //
-//    public CompletableFuture<String> updateUserName(String oldUserName, String newUserName) { // returns json containing { "isSuccess: "true | false" }
-//        // joey
-//        // make sure to handle duplicates
-//    }
+
+    /**
+     * Called from the api, this method update's the user's username - the username must be unique.
+     * @param oldUserName The user's original username which is being updated.
+     * @param newUserName The user's new username - has to be unique
+     * @return A completable future as a string (will contain either "true" or "false")
+     * @throws IOException from socket connection
+     * @author Joey Campbell
+     */
+    public CompletableFuture<String> updateUserName(String oldUserName, String newUserName) throws IOException { // returns json containing { "isSuccess: "true | false" }
+        return getStringCompletableFuture(addJsonType("{}", "UpdateUserName")
+                .put("oldusername", oldUserName)
+                .put("newusername", newUserName)
+        );
+    }
 //
 //    public CompletableFuture<String> updatePassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
 //        // utsav
@@ -246,9 +255,23 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
 //        //grant
 //    }
 //
-//    public CompletableFuture<String> updateLastName(String userName, String lastName) { // returns json containing { "isSuccess: "true | false" }
-//        // joey
-//    }
+
+    /**
+     * Called from the api, this method updates the user's last name.
+     * @param userName The username of the user who is switching their last name
+     * @param lastName The new last name for the user
+     * @return A completable future as a string (will contain either "true" or "false")
+     * @throws IOException from socket connection
+     * @author Joey Campbell
+     */
+    public CompletableFuture<String> updateLastName(String userName, String lastName) throws IOException { // returns json containing { "isSuccess: "true | false" }
+        // joey
+        return getStringCompletableFuture(
+                addJsonType("{}", "UpdateLastName")
+                .put("username", userName)
+                .put("lastname", lastName)
+        );
+    }
 
     /**
      * Free's up api allocated resources
