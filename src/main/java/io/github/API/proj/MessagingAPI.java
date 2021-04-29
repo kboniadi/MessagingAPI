@@ -26,8 +26,8 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable,
             MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
 
             // TESTING - GRANT
-            api.deleteAccount("james").thenAccept((json) -> {
-                System.out.println("Deleted account joey: " + json);
+            api.updateFirstName("james", "new james").thenAccept((json) -> {
+                System.out.println("updated first name of james: " + json);
             });
 
             api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
