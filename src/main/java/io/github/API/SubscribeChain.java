@@ -4,20 +4,21 @@ import io.github.API.utils.BufferWrapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.Arrays;
-
 public class SubscribeChain implements IChannels, IExecute {
-    private final JSONObject jsonBuffer;          // json buffer for sending messages
+    private final String CHANNEL_KEY = "channels";
+    private final String type;
+    private String[] channels;
     private final BufferWrapper buffer;
 
     /**
      * Constructor
-     * @param json shadow json object
+     * @param type json type
      * @param buffer shadow BufferWrapper instance
      * @author Kord Boniadi
      */
-    SubscribeChain(JSONObject json, BufferWrapper buffer) {
-        this.jsonBuffer = json;
+    SubscribeChain(String type, BufferWrapper buffer) {
+        this.type = type;
+        this.channels = null;
         this.buffer = buffer;
     }
 
@@ -28,9 +29,10 @@ public class SubscribeChain implements IChannels, IExecute {
      */
     @Override
     public SubscribeChain channels(String... channels) {
-        jsonBuffer.put("channels", new JSONArray(Arrays.stream(
-                channels)
-                .toArray()));
+        this.channels = channels;
+//        jsonBuffer.put("channels", new JSONArray(Arrays.stream(
+//                channels)
+//                .toArray()));
         return this;
     }
 
@@ -41,7 +43,10 @@ public class SubscribeChain implements IChannels, IExecute {
     @Override
     public void execute() {
         validate();
-        buffer.writeLine(jsonBuffer.toString());
+        JSONObject json = new JSONObject();
+        json.put(CHANNEL_KEY, new JSONArray(channels));
+        json.put("type", this.type);
+        buffer.writeLine(json.toString());
     }
 
     /**
@@ -49,8 +54,10 @@ public class SubscribeChain implements IChannels, IExecute {
      * @author Kord Boniadi
      */
     private void validate() {
-        if (jsonBuffer.isNull("channels"))
+        if (this.channels == null)
             throw new IllegalArgumentException("channels were not set");
+//        if (jsonBuffer.isNull("channels"))
+//            throw new IllegalArgumentException("channels were not set");
     }
 
 }

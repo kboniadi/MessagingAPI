@@ -170,7 +170,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
      * @author Kord Boniadi
      */
     public SubscribeChain subscribe() {
-        return new SubscribeChain(addJsonType("{}", "Subscribe"), this.buffer);
+        return new SubscribeChain("Subscribe", this.buffer);
     }
 
     /**
@@ -178,7 +178,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
      * @author Kord Boniadi
      */
     public SubscribeChain unsubscribe() {
-        return new SubscribeChain(addJsonType("{}", "Unsubscribe"), this.buffer);
+        return new SubscribeChain("Unsubscribe", this.buffer);
     }
 
     /**
@@ -186,7 +186,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
      * @author Kord Boniadi
      */
     public PublishChain publish() {
-        return new PublishChain(addJsonType("{}", "Message"), this.buffer);
+        return new PublishChain("Message", this.buffer);
     }
 
 //    /**

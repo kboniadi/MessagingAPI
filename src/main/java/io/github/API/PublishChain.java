@@ -4,19 +4,23 @@ import io.github.API.utils.BufferWrapper;
 import org.json.JSONObject;
 
 public class PublishChain implements IMessage, IChannel, IExecute {
-    private JSONObject jsonBuffer;          // json buffer for sending messages
+    private final String CHANNEL_KEY = "channels";
+    private final String type;
+    private String message;
+    private String channel;
     private final BufferWrapper buffer;
-    private boolean isMessageCreated = false;
 
     /**
      * Constructor
-     * @param json shadow json object
+     * @param type json type
      * @param buffer shadow BufferWrapper instance
      * @author Kord Boniadi
      */
-    PublishChain(JSONObject json, BufferWrapper buffer) {
-        this.jsonBuffer = json;
+    PublishChain(String type, BufferWrapper buffer) {
+        this.type = type;
         this.buffer = buffer;
+        this.message = null;
+        this.channel = null;
     }
 
     /**
@@ -26,13 +30,7 @@ public class PublishChain implements IMessage, IChannel, IExecute {
      */
     @Override
     public PublishChain message(String json) {
-        JSONObject temp = new JSONObject(json);
-        var iterator = this.jsonBuffer.keys();
-        iterator.forEachRemaining(key -> {
-            temp.put(key, this.jsonBuffer.get(key));
-        });
-        this.jsonBuffer = temp;
-        isMessageCreated = true;
+        this.message = json;
         return this;
     }
 
@@ -43,7 +41,10 @@ public class PublishChain implements IMessage, IChannel, IExecute {
     @Override
     public void execute() {
         validate();
-        buffer.writeLine(jsonBuffer.toString());
+        JSONObject json = new JSONObject(this.message);
+        json.put(CHANNEL_KEY, this.channel);
+        json.put("type", this.type);
+        buffer.writeLine(json.toString());
     }
 
     /**
@@ -51,9 +52,9 @@ public class PublishChain implements IMessage, IChannel, IExecute {
      * @author Kord Boniadi
      */
     private void validate() {
-        if (jsonBuffer.isNull("channels"))
+        if (channel ==  null)
             throw new IllegalArgumentException("channel was not set");
-        else if (!isMessageCreated)
+        else if (message == null)
             throw new IllegalArgumentException("message was never created");
     }
 
@@ -64,7 +65,7 @@ public class PublishChain implements IMessage, IChannel, IExecute {
      */
     @Override
     public PublishChain channel(String channel) {
-        jsonBuffer.put("channels", channel);
+        this.channel = channel;
         return this;
     }
 }
