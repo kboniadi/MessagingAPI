@@ -1,4 +1,4 @@
-package io.github.API.proj;
+package io.github.API;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +40,7 @@ abstract class AbstractEventManager {
         Set<ISubscribeCallback> callbacks = list.get(channel);
         if (callbacks != null) {
             callbacks.forEach(k -> {
-                k.resolved(api, json);
+                k.resolved(api, new MessageResultAPI(channel, json));
             });
         }
     }

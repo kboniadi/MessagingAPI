@@ -1,4 +1,4 @@
-package io.github.API.proj.utils;
+package io.github.API.utils;
 
 import java.io.*;
 import java.util.Objects;

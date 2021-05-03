@@ -1,70 +1,74 @@
-package io.github.API.proj;
+package io.github.API;
 
-import io.github.API.proj.utils.BufferWrapper;
-import org.json.JSONArray;
+import io.github.API.utils.BufferWrapper;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MessagingAPI extends AbstractEventManager implements AutoCloseable {
-    private final String serverAddress = "localhost";     // IP For remote Server
+    private final String serverAddress = "localhost";       // IP For remote Server
     private final ExecutorService server;                   // Thread pool for DB calls
     private final Socket mainSocket;                        // Persistent Server connection for api
     private final BufferWrapper buffer;                     // read/write wrapper for tcp throughput
     private volatile boolean exit = false;
 
-    public static void main(String[] args) {
-        try {
-            MessagingAPI api = new MessagingAPI(ThreadCount.FOUR);
-            MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
-            api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
-            api2.subscribe().channels("channel3").execute();                // register api to listen to a channel
-
-            api.addEventListener((apiRef, json) -> {            // callback event listener
-                System.out.println("IT WORKED!!! Message received from \"channel1\" and \"channel2\" on api");
-                System.out.println(json);
-            }, "channel1", "channel2");
-
-            api.addEventListener((apiRef, json) -> {            // callback event listener
-                System.out.println("IT WORKED!!! Message received from channel2 on api");
-                System.out.println(json);
-            }, "channel2");
-
-            api2.addEventListener((apiRef, json) -> {           // callback event listener
-                System.out.println("IT WORKED!!! Message received from channel3 on api2");
-                System.out.println(json);
-            }, "channel3");
-
-            // sending message to a channel
-            api.publish().message(api.addJsonType("{}", "Message")
-                    .put("name", "tim")
-                    .put("haircolor", "brown").put("utsav", new JSONArray(Arrays.stream(new String[]{"one", "two", "three", "four"}).toArray())).toString()).channel("channel1").execute();
-
-            // sending message to a channel
-            api.publish().message(api.addJsonType("{}", "Message")
-                    .put("name", "johnny")
-                    .put("haircolor", "blond").put("utsav", new JSONArray(Arrays.stream(new String[]{"one222222222222222222222", "two", "three", "four"}).toArray())).toString()).channel("channel2").execute();
-
-            // sending message to a channel
-            api2.publish().message(api2.addJsonType("{}", "Message")
-                    .put("name", "kevin")
-                    .put("haircolor", "black").put("utsav", new JSONArray(Arrays.stream(new String[]{"one333333333333333333333", "two", "three", "four"}).toArray())).toString()).channel("channel3").execute();
-
-            System.out.println("this statement was actually invoked last!!");
-            Thread.sleep(5000);
-            api.free();
-            api2.free();
-        } catch (Exception e) {
-            System.out.println("end");
-        }
-    }
+//    public static void main(String[] args) {
+//        Logger.init("io/github/API/configs/logging.properties");
+//        MessagingAPI api = null;
+//        MessagingAPI api2 = null;
+//        try {
+//            api = new MessagingAPI(ThreadCount.FOUR);
+//            api2 = new MessagingAPI(ThreadCount.SYS_DEP);
+//            api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
+//            api2.subscribe().channels("channel3").execute();                // register api to listen to a channel
+//
+//            api.addEventListener((apiRef, result) -> {            // callback event listener
+//                System.out.println("IT WORKED!!! Message received from \"channel1\" and \"channel2\" on api");
+//                System.out.println(result.getMessage());
+//            }, "channel1", "channel2");
+//
+//            api.addEventListener((apiRef, result) -> {            // callback event listener
+//                System.out.println("IT WORKED!!! Message received from channel2 on api");
+//                System.out.println(result.getMessage());
+//            }, "channel2");
+//
+//            api2.addEventListener((apiRef, result) -> {           // callback event listener
+//                System.out.println("IT WORKED!!! Message received from channel3 on api2");
+//                System.out.println(result.getMessage());
+//            }, "channel3");
+//
+//            // sending message to a channel
+//            api.publish().message(api.addJsonType("{}", "Message")
+//                    .put("name", "tim")
+//                    .put("haircolor", "brown").put("utsav", new JSONArray(Arrays.stream(new String[]{"one", "two", "three", "four"}).toArray())).toString()).channel("channel1").execute();
+//
+//            // sending message to a channel
+//            api.publish().message(api.addJsonType("{}", "Message")
+//                    .put("name", "johnny")
+//                    .put("haircolor", "blond").put("utsav", new JSONArray(Arrays.stream(new String[]{"one222222222222222222222", "two", "three", "four"}).toArray())).toString()).channel("channel2").execute();
+//
+//            // sending message to a channel
+//            api2.publish().message(api2.addJsonType("{}", "Message")
+//                    .put("name", "kevin")
+//                    .put("haircolor", "black").put("utsav", new JSONArray(Arrays.stream(new String[]{"one333333333333333333333", "two", "three", "four"}).toArray())).toString()).channel("channel3").execute();
+//
+//            System.out.println("this statement was actually invoked last!!");
+//            Thread.sleep(5000);
+//            api.free();
+//            api2.free();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            System.out.println("end");
+//            if (api != null)
+//                api.free();
+//            if (api2 != null)
+//                api2.free();
+//        }
+//    }
 
     /**
      * No arg Constructor
@@ -107,7 +111,6 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
             }
 
         }).start();
-
     }
 
     /*===============================START OF HELPER METHODS====================================================*/
@@ -167,7 +170,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
      * @author Kord Boniadi
      */
     public SubscribeChain subscribe() {
-        return new SubscribeChain(addJsonType("{}", "Subscribe"));
+        return new SubscribeChain(addJsonType("{}", "Subscribe"), this.buffer);
     }
 
     /**
@@ -175,7 +178,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
      * @author Kord Boniadi
      */
     public SubscribeChain unsubscribe() {
-        return new SubscribeChain(addJsonType("{}", "Unsubscribe"));
+        return new SubscribeChain(addJsonType("{}", "Unsubscribe"), this.buffer);
     }
 
     /**
@@ -183,7 +186,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
      * @author Kord Boniadi
      */
     public PublishChain publish() {
-        return new PublishChain(addJsonType("{}", "Message"));
+        return new PublishChain(addJsonType("{}", "Message"), this.buffer);
     }
 
 //    /**
@@ -318,100 +321,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
             buffer.close();
             mainSocket.close();
         } catch (SecurityException | IOException e) {
-            throw new Exception("Something went wrong in -> { io.github.API.proj.TTTDataBaseAPI.class }");
-        }
-    }
-
-    public class SubscribeChain implements IChannels {
-        private final JSONObject jsonBuffer;          // json buffer for sending messages
-
-        public class Execute implements IExecute {
-            private final JSONObject jsonBuffer;          // json buffer for sending messages
-
-            private Execute(JSONObject json) {
-                this.jsonBuffer = json;
-            }
-            /**
-             * writes the built data to the server
-             * @author Kord Boniadi
-             */
-            @Override
-            public void execute() {
-                buffer.writeLine(jsonBuffer.toString());
-            }
-        }
-
-        private SubscribeChain(JSONObject json) {
-            this.jsonBuffer = json;
-        }
-        /**
-         * @param channels array of channels
-         * @return instance of api class
-         * @author Kord Boniadi
-         */
-        @Override
-        public Execute channels(String... channels) {
-            return new Execute(jsonBuffer.put("channels", new JSONArray(Arrays.stream(
-                    channels)
-                    .toArray())));
-        }
-    }
-
-    public class PublishChain implements IMessage {
-        private final JSONObject jsonBuffer;          // json buffer for sending messages
-
-        public class Channel implements IChannel {
-            private final JSONObject jsonBuffer;          // json buffer for sending messages
-
-            public class Execute implements IExecute {
-                private final JSONObject jsonBuffer;          // json buffer for sending messages
-
-                private Execute(JSONObject json) {
-                    this.jsonBuffer = json;
-                }
-                /**
-                 * writes the built data to the server
-                 * @author Kord Boniadi
-                 */
-                @Override
-                public void execute() {
-                    buffer.writeLine(jsonBuffer.toString());
-                }
-            }
-
-            private Channel(JSONObject json) {
-                this.jsonBuffer = json;
-            }
-
-            /**
-             * @param channel channel name
-             * @return instance of api class
-             * @author Kord Boniadi
-             */
-            @Override
-            public Execute channel(String channel) {
-                return new Execute(jsonBuffer.put("channels", channel));
-            }
-        }
-
-        private PublishChain(JSONObject json) {
-            this.jsonBuffer = json;
-        }
-
-        /**
-         * @param json message in json form
-         * @return instance of api class
-         * @author Kord Boniadi
-         */
-        @Override
-        public Channel message(String json) {
-            JSONObject temp = new JSONObject(json);
-            var iterator = this.jsonBuffer.keys();
-            iterator.forEachRemaining(key -> {
-                temp.put(key, this.jsonBuffer.get(key));
-            });
-
-            return new Channel(temp);
+            throw new Exception("Something went wrong in -> { io.github.API.proj.MessageAPI.class }");
         }
     }
 }

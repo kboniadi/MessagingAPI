@@ -1,4 +1,4 @@
-package io.github.API.proj;
+package io.github.API;
 
 public enum ThreadCount {
     ONE(1),
