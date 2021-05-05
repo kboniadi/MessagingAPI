@@ -1,19 +1,28 @@
 package io.github.API;
 
+import io.github.API.messagedata.MsgStatus;
+import io.github.API.messagedata.MsgStatusCategory;
+import io.github.API.messagedata.MsgStatusOperation;
+import io.github.API.messagedata.ThreadCount;
 import io.github.API.utils.BufferWrapper;
+import lombok.Getter;
+import lombok.NonNull;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MessagingAPI extends AbstractEventManager implements AutoCloseable {
+public class MessagingAPI implements AutoCloseable {
     private final String serverAddress = "localhost";       // IP For remote Server
     private final ExecutorService server;                   // Thread pool for DB calls
     private final Socket mainSocket;                        // Persistent Server connection for api
     private final BufferWrapper buffer;                     // read/write wrapper for tcp throughput
+    @Getter
+    private final String uuid = UUID.randomUUID().toString();
     private volatile boolean exit = false;
 
 //    public static void main(String[] args) {
@@ -99,7 +108,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
                 while (!exit) {
                     if ((value = buffer.readLine()) != null) {
                         JSONObject newJson = new JSONObject(value);
-                        publish(this, newJson.remove("channels").toString(), newJson.toString());
+                        EventManager.getInstance().publish(this, newJson.remove("channels").toString(), newJson.toString());
                     } else {
                         System.out.println("Server returned null, something is wrong");
                         throw new IOException("Server may have crashed");
@@ -165,6 +174,25 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
 
     /*===============================END OF HELPER METHODS====================================================*/
 
+    /**
+     * Wrapper around EventManager method
+     * @param callback  callback that receives data
+     * @param channels  channels broadcast on
+     * @author Kord Boniadi
+     */
+    public void addEventlistener(@NonNull ISubscribeCallback callback, @NonNull String... channels) {
+        EventManager.getInstance().addEventListener(this, callback, channels);
+    }
+
+    /**
+     * Wrapper around EventManager method
+     * @param callback  callback that receives data
+     * @param channels  channels broadcast on
+     * @author Kord Boniadi
+     */
+    public void removeEventlistener(@NonNull ISubscribeCallback callback, @NonNull String... channels) {
+        EventManager.getInstance().removeEventListener(this, callback, channels);
+    }
     /**
      * @return instance of api class
      * @author Kord Boniadi
@@ -261,6 +289,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
         try {
             exit = true;
             server.shutdown();
+            EventManager.getInstance().cleanup();
             buffer.close();
             mainSocket.close();
         } catch (SecurityException | IOException e) {
@@ -318,6 +347,7 @@ public class MessagingAPI extends AbstractEventManager implements AutoCloseable 
         try {
             exit = true;
             server.shutdown();
+            EventManager.getInstance().cleanup();
             buffer.close();
             mainSocket.close();
         } catch (SecurityException | IOException e) {
