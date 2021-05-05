@@ -180,7 +180,7 @@ public class MessagingAPI implements AutoCloseable {
      * @param channels  channels broadcast on
      * @author Kord Boniadi
      */
-    public void addEventlistener(@NonNull ISubscribeCallback callback, @NonNull String... channels) {
+    public void addEventListener(@NonNull ISubscribeCallback callback, @NonNull String... channels) {
         EventManager.getInstance().addEventListener(this, callback, channels);
     }
 
@@ -190,7 +190,7 @@ public class MessagingAPI implements AutoCloseable {
      * @param channels  channels broadcast on
      * @author Kord Boniadi
      */
-    public void removeEventlistener(@NonNull ISubscribeCallback callback, @NonNull String... channels) {
+    public void removeEventListener(@NonNull ISubscribeCallback callback, @NonNull String... channels) {
         EventManager.getInstance().removeEventListener(this, callback, channels);
     }
     /**
