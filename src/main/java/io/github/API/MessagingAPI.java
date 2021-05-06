@@ -1,8 +1,5 @@
 package io.github.API;
 
-import io.github.API.messagedata.MsgStatus;
-import io.github.API.messagedata.MsgStatusCategory;
-import io.github.API.messagedata.MsgStatusOperation;
 import io.github.API.messagedata.ThreadCount;
 import io.github.API.utils.BufferWrapper;
 import lombok.Getter;
@@ -35,35 +32,68 @@ public class MessagingAPI implements AutoCloseable {
 //            api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
 //            api2.subscribe().channels("channel3").execute();                // register api to listen to a channel
 //
-//            api.addEventListener((apiRef, result) -> {            // callback event listener
-//                System.out.println("IT WORKED!!! Message received from \"channel1\" and \"channel2\" on api");
-//                System.out.println(result.getMessage());
+//            api.addEventListener(new ISubscribeCallback() {
+//                @Override
+//                public void status(MessagingAPI api, MsgStatus status) {
+//
+//                }
+//
+//                @Override
+//                public void resolved(MessagingAPI api, MsgResultAPI result) {
+//                    System.out.println("IT WORKED!!! Message received from \"channel1\" and \"channel2\" on api");
+//                    System.out.println(result.getMessage());
+//                }
+//
+//                @Override
+//                public void rejected(Exception e) {
+//
+//                }
 //            }, "channel1", "channel2");
 //
-//            api.addEventListener((apiRef, result) -> {            // callback event listener
-//                System.out.println("IT WORKED!!! Message received from channel2 on api");
-//                System.out.println(result.getMessage());
+//            api.addEventListener(new ISubscribeCallback() {
+//                @Override
+//                public void status(MessagingAPI api, MsgStatus status) {
+//
+//                }
+//
+//                @Override
+//                public void resolved(MessagingAPI api, MsgResultAPI result) {
+//                    System.out.println("IT WORKED!!! Message received from channel2 on api");
+//                    System.out.println(result.getMessage());
+//                }
+//
+//                @Override
+//                public void rejected(Exception e) {
+//
+//                }
 //            }, "channel2");
 //
-//            api2.addEventListener((apiRef, result) -> {           // callback event listener
-//                System.out.println("IT WORKED!!! Message received from channel3 on api2");
-//                System.out.println(result.getMessage());
+//            api2.addEventListener(new ISubscribeCallback() {
+//                @Override
+//                public void status(MessagingAPI api, MsgStatus status) {
+//
+//                }
+//
+//                @Override
+//                public void resolved(MessagingAPI api, MsgResultAPI result) {
+//                    System.out.println("IT WORKED!!! Message received from channel3 on api2");
+//                    System.out.println(result.getMessage());
+//                }
+//
+//                @Override
+//                public void rejected(Exception e) {
+//
+//                }
 //            }, "channel3");
 //
 //            // sending message to a channel
-//            api.publish().message(api.addJsonType("{}", "Message")
-//                    .put("name", "tim")
-//                    .put("haircolor", "brown").put("utsav", new JSONArray(Arrays.stream(new String[]{"one", "two", "three", "four"}).toArray())).toString()).channel("channel1").execute();
+//            api.publish().message(new TestClass("tim", "brown", new String[]{"one", "two", "three", "four"})).channel("channel1").execute();
 //
 //            // sending message to a channel
-//            api.publish().message(api.addJsonType("{}", "Message")
-//                    .put("name", "johnny")
-//                    .put("haircolor", "blond").put("utsav", new JSONArray(Arrays.stream(new String[]{"one222222222222222222222", "two", "three", "four"}).toArray())).toString()).channel("channel2").execute();
+//            api.publish().message(new TestClass("johnny", "blond", new String[]{"one222222222222222222222", "two", "three", "four"})).channel("channel2").execute();
 //
 //            // sending message to a channel
-//            api2.publish().message(api2.addJsonType("{}", "Message")
-//                    .put("name", "kevin")
-//                    .put("haircolor", "black").put("utsav", new JSONArray(Arrays.stream(new String[]{"one333333333333333333333", "two", "three", "four"}).toArray())).toString()).channel("channel3").execute();
+//            api2.publish().message(new TestClass("kevin", "black", new String[]{"one333333333333333333333", "two", "three", "four"})).channel("channel3").execute();
 //
 //            System.out.println("this statement was actually invoked last!!");
 //            Thread.sleep(5000);
@@ -161,16 +191,6 @@ public class MessagingAPI implements AutoCloseable {
 //            return null;
 //        }, server);
 //    }
-
-    /**
-     * @param json unmodified json String
-     * @param typeValue value of "type" key in json
-     * @return modded JSONObject
-     * @author Kord Boniadi
-     */
-    private JSONObject addJsonType(String json, Object typeValue) {
-        return new JSONObject(json).put("type", typeValue);
-    }
 
     /*===============================END OF HELPER METHODS====================================================*/
 

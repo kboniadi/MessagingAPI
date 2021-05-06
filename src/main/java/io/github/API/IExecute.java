@@ -10,5 +10,5 @@ interface IChannels {
     IExecute channels(String... channels);
 }
 interface IMessage {
-    IChannel message(String json);
+    IChannel message(Object message);
 }

@@ -1,12 +1,13 @@
 package io.github.API;
 
 import io.github.API.utils.BufferWrapper;
+import io.github.API.utils.GsonWrapper;
 import org.json.JSONObject;
 
 public class PublishChain implements IMessage, IChannel, IExecute {
     private final String CHANNEL_KEY = "channels";
     private final String type;
-    private String message;
+    private Object message;
     private String channel;
     private final BufferWrapper buffer;
 
@@ -24,13 +25,13 @@ public class PublishChain implements IMessage, IChannel, IExecute {
     }
 
     /**
-     * @param json message in json form
+     * @param message message Object
      * @return instance of api class
      * @author Kord Boniadi
      */
     @Override
-    public PublishChain message(String json) {
-        this.message = json;
+    public PublishChain message(Object message) {
+        this.message = message;
         return this;
     }
 
@@ -41,7 +42,7 @@ public class PublishChain implements IMessage, IChannel, IExecute {
     @Override
     public void execute() {
         validate();
-        JSONObject json = new JSONObject(this.message);
+        JSONObject json = new JSONObject(GsonWrapper.toJson(this.message));
         json.put(CHANNEL_KEY, this.channel);
         json.put("type", this.type);
         buffer.writeLine(json.toString());
