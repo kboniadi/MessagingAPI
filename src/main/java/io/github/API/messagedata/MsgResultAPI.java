@@ -10,11 +10,11 @@ import lombok.ToString;
 public class MsgResultAPI {
     private final String channel;
     private final String message;
-    private final String uuid;
+    private final String publisherUuid;
 
     public MsgResultAPI(String channel, String message, String uuid) {
         this.channel = channel;
         this.message = message;
-        this.uuid = uuid;
+        this.publisherUuid = uuid;
     }
 }

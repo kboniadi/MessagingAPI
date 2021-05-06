@@ -138,7 +138,7 @@ public class MessagingAPI implements AutoCloseable {
                 while (!exit) {
                     if ((value = buffer.readLine()) != null) {
                         JSONObject newJson = new JSONObject(value);
-                        EventManager.getInstance().publish(this, newJson.remove("channels").toString(), newJson.toString());
+                        EventManager.getInstance().publish(this, newJson.remove("uuid").toString(), newJson.remove("channels").toString(), newJson.toString());
                     } else {
                         System.out.println("Server returned null, something is wrong");
                         throw new IOException("Server may have crashed");
@@ -234,7 +234,7 @@ public class MessagingAPI implements AutoCloseable {
      * @author Kord Boniadi
      */
     public PublishChain publish() {
-        return new PublishChain("Message", this.buffer);
+        return new PublishChain(getUuid(), "Message", this.buffer);
     }
 
 //    /**

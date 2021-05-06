@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 public class PublishChain implements IMessage, IChannel, IExecute {
     private final String CHANNEL_KEY = "channels";
+    private String publisherUuid;
     private final String type;
     private Object message;
     private String channel;
@@ -17,7 +18,8 @@ public class PublishChain implements IMessage, IChannel, IExecute {
      * @param buffer shadow BufferWrapper instance
      * @author Kord Boniadi
      */
-    PublishChain(String type, BufferWrapper buffer) {
+    PublishChain(String uuid, String type, BufferWrapper buffer) {
+        this.publisherUuid = uuid;
         this.type = type;
         this.buffer = buffer;
         this.message = null;
@@ -44,6 +46,7 @@ public class PublishChain implements IMessage, IChannel, IExecute {
         validate();
         JSONObject json = new JSONObject(GsonWrapper.toJson(this.message));
         json.put(CHANNEL_KEY, this.channel);
+        json.put("uuid", this.publisherUuid);
         json.put("type", this.type);
         buffer.writeLine(json.toString());
     }

@@ -40,11 +40,11 @@ final class EventManager {
         callback.status(api, new MsgStatus(MsgStatusCategory.MsgClosedCategory, MsgStatusOperation.MsgUnsubscribeOperation));
     }
 
-    void publish(MessagingAPI api, @NonNull String channel, @NonNull String json) {
+    void publish(MessagingAPI api, String publisherUuid, @NonNull String channel, @NonNull String json) {
         Set<ISubscribeCallback> callbacks = list.get(channel);
         if (callbacks != null) {
             callbacks.forEach((k) -> {
-                k.resolved(api, new MsgResultAPI(channel, json, api.getUuid()));
+                k.resolved(api, new MsgResultAPI(channel, json, publisherUuid));
             });
         }
     }
