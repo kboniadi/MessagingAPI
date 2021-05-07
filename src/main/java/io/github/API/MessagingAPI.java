@@ -213,6 +213,7 @@ public class MessagingAPI implements AutoCloseable {
     public void removeEventListener(@NonNull ISubscribeCallback callback, @NonNull String... channels) {
         EventManager.getInstance().removeEventListener(this, callback, channels);
     }
+
     /**
      * @return instance of api class
      * @author Kord Boniadi
@@ -267,38 +268,6 @@ public class MessagingAPI implements AutoCloseable {
 //                .put("firstname", firstName)            // KEYS NEED TO BE ALL LOWERCASE
 //                .put("lastname", lastName)              // KEYS NEED TO BE ALL LOWERCASE
 //        );
-//    }
-
-
-//    public CompletableFuture<String> getGameHistoryInfo(String userName) {
-//
-//    }
-//
-//
-//    public CompletableFuture<String> deleteAccount(String userName) {
-//        //grant
-//        // change delete column flag
-//    }
-//
-//    public CompletableFuture<String> verifyPassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
-//        // utsav
-//    }
-//
-//    public CompletableFuture<String> updateUserName(String oldUserName, String newUserName) { // returns json containing { "isSuccess: "true | false" }
-//        // joey
-//        // make sure to handle duplicates
-//    }
-//
-//    public CompletableFuture<String> updatePassword(String userName, String password) { // returns json containing { "isSuccess: "true | false" }
-//        // utsav
-//    }
-//
-//    public CompletableFuture<String> updateFirstName(String userName, String firstName) { // returns json containing { "isSuccess: "true | false" }
-//        //grant
-//    }
-//
-//    public CompletableFuture<String> updateLastName(String userName, String lastName) { // returns json containing { "isSuccess: "true | false" }
-//        // joey
 //    }
 
     /**

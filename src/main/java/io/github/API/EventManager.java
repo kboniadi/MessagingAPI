@@ -29,12 +29,19 @@ final class EventManager {
     }
 
     void removeEventListener(MessagingAPI api, ISubscribeCallback callback, String... channels) {
-        for (var channel : channels) {
-            Set<?> reference = list.get(channel);
-            if (reference != null) {
-                reference.remove(callback);
+        if (channels.length == 0) {
+            list.forEach((key, value) -> {
+                value.remove(callback);
+                if (value.isEmpty()) list.remove(key);
+            });
+        } else {
+            for (var channel : channels) {
+                Set<?> reference = list.get(channel);
+                if (reference != null) {
+                    reference.remove(callback);
 
-                if (reference.isEmpty()) list.remove(channel);
+                    if (reference.isEmpty()) list.remove(channel);
+                }
             }
         }
         callback.status(api, new MsgStatus(MsgStatusCategory.MsgClosedCategory, MsgStatusOperation.MsgUnsubscribeOperation));
