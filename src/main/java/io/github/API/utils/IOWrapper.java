@@ -1,21 +1,22 @@
 package io.github.API.utils;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Objects;
 
-public class BufferWrapper {
-    private final BufferedWriter writer;
-    private final BufferedReader reader;
+public class IOWrapper {
+    private final DataOutputStream writer;
+    private final DataInputStream reader;
 
-    private BufferWrapper(Builder builder) {
+    private IOWrapper(Builder builder) {
         this.writer = builder.writer;
         this.reader = builder.reader;
     }
     public void writeLine(String source) {
         Objects.requireNonNull(writer, "must build with { Writer } to use -> void writeLine(String source)");
         try {
-            writer.write(source);
-            writer.newLine();
+            writer.writeUTF(source);
             writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -24,14 +25,14 @@ public class BufferWrapper {
 
     public String readLine() throws IOException {
         Objects.requireNonNull(reader, "must build with { Reader } to use -> String readLine()");
-        return reader.readLine();
+        return reader.readUTF();
     }
 
     public String read() throws IOException {
         Objects.requireNonNull(reader, "must build with { Reader } to use -> String read()");
         String response = "";
         int len;
-        char[] b = new char[2048];
+        byte[] b = new byte[2048];
         len = reader.read(b);
         response = new String(b, 0, len);
         return response;
@@ -42,27 +43,26 @@ public class BufferWrapper {
         this.reader.close();
     }
 
-
     public static class Builder {
-        private BufferedWriter writer;
-        private BufferedReader reader;
+        private DataOutputStream writer;
+        private DataInputStream reader;
 
         public Builder() {
             // empty
         }
 
-        public Builder withWriter(Writer writer) {
-            this.writer = (BufferedWriter) writer;
+        public Builder withWriter(DataOutputStream writer) {
+            this.writer = writer;
             return this;
         }
 
-        public Builder withReader(Reader reader) {
-            this.reader = (BufferedReader) reader;
+        public Builder withReader(DataInputStream reader) {
+            this.reader = reader;
             return this;
         }
 
-        public BufferWrapper build() {
-            return new BufferWrapper(this);
+        public IOWrapper build() {
+            return new IOWrapper(this);
         }
     }
 }

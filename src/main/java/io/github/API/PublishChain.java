@@ -1,6 +1,6 @@
 package io.github.API;
 
-import io.github.API.utils.BufferWrapper;
+import io.github.API.utils.IOWrapper;
 import io.github.API.utils.GsonWrapper;
 import org.json.JSONObject;
 
@@ -10,7 +10,7 @@ public class PublishChain implements IMessage, IChannel, IExecute {
     private final String type;
     private Object message;
     private String channel;
-    private final BufferWrapper buffer;
+    private final IOWrapper buffer;
 
     /**
      * Constructor
@@ -18,7 +18,7 @@ public class PublishChain implements IMessage, IChannel, IExecute {
      * @param buffer shadow BufferWrapper instance
      * @author Kord Boniadi
      */
-    PublishChain(String uuid, String type, BufferWrapper buffer) {
+    PublishChain(String uuid, String type, IOWrapper buffer) {
         this.publisherUuid = uuid;
         this.type = type;
         this.buffer = buffer;

@@ -1,6 +1,6 @@
 package io.github.API;
 
-import io.github.API.utils.BufferWrapper;
+import io.github.API.utils.IOWrapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -8,7 +8,7 @@ public class SubscribeChain implements IChannels, IExecute {
     private final String CHANNEL_KEY = "channels";
     private final String type;
     private String[] channels;
-    private final BufferWrapper buffer;
+    private final IOWrapper buffer;
 
     /**
      * Constructor
@@ -16,7 +16,7 @@ public class SubscribeChain implements IChannels, IExecute {
      * @param buffer shadow BufferWrapper instance
      * @author Kord Boniadi
      */
-    SubscribeChain(String type, BufferWrapper buffer) {
+    SubscribeChain(String type, IOWrapper buffer) {
         this.type = type;
         this.channels = null;
         this.buffer = buffer;
@@ -30,9 +30,6 @@ public class SubscribeChain implements IChannels, IExecute {
     @Override
     public SubscribeChain channels(String... channels) {
         this.channels = channels;
-//        jsonBuffer.put("channels", new JSONArray(Arrays.stream(
-//                channels)
-//                .toArray()));
         return this;
     }
 
@@ -56,8 +53,6 @@ public class SubscribeChain implements IChannels, IExecute {
     private void validate() {
         if (this.channels == null)
             throw new IllegalArgumentException("channels were not set");
-//        if (jsonBuffer.isNull("channels"))
-//            throw new IllegalArgumentException("channels were not set");
     }
 
 }

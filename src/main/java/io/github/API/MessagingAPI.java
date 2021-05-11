@@ -1,29 +1,47 @@
 package io.github.API;
 
 import io.github.API.messagedata.ThreadCount;
-import io.github.API.utils.BufferWrapper;
+import io.github.API.utils.IOWrapper;
 import lombok.Getter;
 import lombok.NonNull;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MessagingAPI implements AutoCloseable {
+    private static final Logger LOGGER = Logger.getLogger(MessagingAPI.class);
     private final String serverAddress = "localhost";       // IP For remote Server
     private final ExecutorService server;                   // Thread pool for DB calls
-    private final Socket mainSocket;                        // Persistent Server connection for api
-    private final BufferWrapper buffer;                     // read/write wrapper for tcp throughput
+    private Socket mainSocket;                              // Persistent Server connection for api
+    private IOWrapper buffer;                               // read/write wrapper for tcp throughput
     @Getter
     private final String uuid = UUID.randomUUID().toString();
     private volatile boolean exit = false;
+    private CloseCallback cc;
+
+    static {
+        PropertyConfigurator.configure(MessagingAPI.class.getResource("configs/log4j.properties"));
+//        Logger.getRootLogger().setLevel(Level.OFF);
+    }
 
 //    public static void main(String[] args) {
-//        Logger.init("io/github/API/configs/logging.properties");
+//        MessagingAPI api = new MessagingAPI();
+//
+//        api.subscribe().channels("PlayerInfo").execute();
+//
+//        api.publish().channel("PlayerInfo").message(new PlayerInfo()).execute();
+//
 //        MessagingAPI api = null;
 //        MessagingAPI api2 = null;
 //        try {
@@ -111,26 +129,31 @@ public class MessagingAPI implements AutoCloseable {
 
     /**
      * No arg Constructor
-     * @throws IOException from socket connection
      * @author Kord Boniadi
      */
-    public MessagingAPI() throws IOException {
+    public MessagingAPI() {
         this(ThreadCount.FOUR);
     }
 
     /**
      * Constructor
      * @param count number of threads to use in pool
-     * @throws IOException from socket connection
      * @author Kord Boniadi
      */
-    public MessagingAPI(ThreadCount count) throws IOException {
+    public MessagingAPI(ThreadCount count) {
         server = Executors.newFixedThreadPool(count.toInt());
-        mainSocket = new Socket(serverAddress, 9000);
-        buffer = new BufferWrapper.Builder()
-                .withWriter(new BufferedWriter(new OutputStreamWriter(mainSocket.getOutputStream(), StandardCharsets.UTF_8)))
-                .withReader(new BufferedReader(new InputStreamReader(mainSocket.getInputStream(), StandardCharsets.UTF_8)))
-                .build();
+        try {
+            mainSocket = new Socket(serverAddress, 9000);
+            buffer = new IOWrapper.Builder()
+                    .withWriter(new DataOutputStream(mainSocket.getOutputStream()))
+                    .withReader(new DataInputStream(mainSocket.getInputStream()))
+                    .build();
+        } catch (Exception e) {
+            LOGGER.info("Connection error.");
+            LOGGER.info("freeing up resources...");
+            LOGGER.info("Closed.");
+            free();
+        }
 
         new Thread(() -> {  // api listener thread
             try {
@@ -145,8 +168,11 @@ public class MessagingAPI implements AutoCloseable {
                     }
                 }
             } catch (IOException e) {
-                System.out.println(e.getMessage());
-//                e.printStackTrace();
+                LOGGER.info(Objects.requireNonNullElse(e.getMessage(), "Server may have crashed"));
+            } finally {
+                LOGGER.info("freeing up resources...");
+                LOGGER.info("Closed.");
+                free();
             }
 
         }).start();
@@ -238,37 +264,9 @@ public class MessagingAPI implements AutoCloseable {
         return new PublishChain(getUuid(), "Message", this.buffer);
     }
 
-//    /**
-//     * @param userName userName of player to look up
-//     * @return Future event that resolving to a json string
-//     * @throws IOException from socket connection
-//     * @author Kord Boniadi
-//     */
-//    public CompletableFuture<String> getPlayerInfo(String userName) throws IOException {
-//        return getStringCompletableFuture(
-//                addJsonType("{}", "PlayerInfo")
-//                .put("username", userName)      // KEYS NEED TO BE ALL LOWERCASE
-//        );
-//    }
-//
-//    /**
-//     * @param firstName first name
-//     * @param lastName last name
-//     * @param userName userName
-//     * @param password password
-//     * @return Future event resolving to a json String
-//     * @throws IOException from socket connection
-//     * @author Kord Boniadi
-//     */
-//    public CompletableFuture<String> createAccount(String userName, String password, String firstName, String lastName) throws IOException { // returns json containing { "isSuccess: "true | false" }
-//        return getStringCompletableFuture(
-//                addJsonType("{}", "CreateAccount")
-//                .put("username", userName)              // KEYS NEED TO BE ALL LOWERCASE
-//                .put("password", password)              // KEYS NEED TO BE ALL LOWERCASE
-//                .put("firstname", firstName)            // KEYS NEED TO BE ALL LOWERCASE
-//                .put("lastname", lastName)              // KEYS NEED TO BE ALL LOWERCASE
-//        );
-//    }
+    public void onclose(CloseCallback cc) {
+        this.cc = cc;
+    }
 
     /**
      * Free's up api allocated resources
@@ -281,6 +279,7 @@ public class MessagingAPI implements AutoCloseable {
             EventManager.getInstance().cleanup();
             buffer.close();
             mainSocket.close();
+            this.cc.action();
         } catch (SecurityException | IOException e) {
             e.printStackTrace();
         }
@@ -339,6 +338,7 @@ public class MessagingAPI implements AutoCloseable {
             EventManager.getInstance().cleanup();
             buffer.close();
             mainSocket.close();
+            this.cc.action();
         } catch (SecurityException | IOException e) {
             throw new Exception("Something went wrong in -> { io.github.API.proj.MessageAPI.class }");
         }

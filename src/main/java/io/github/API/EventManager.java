@@ -60,7 +60,7 @@ final class EventManager {
         return list.get(channel) != null;
     }
 
-    int listenersCount(@NonNull String channel) {
+    int numOfListeners(@NonNull String channel) {
         return list.get(channel).size();
     }
 
