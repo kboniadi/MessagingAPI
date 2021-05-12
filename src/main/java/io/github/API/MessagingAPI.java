@@ -4,7 +4,6 @@ import io.github.API.messagedata.ThreadCount;
 import io.github.API.utils.IOWrapper;
 import lombok.Getter;
 import lombok.NonNull;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.json.JSONObject;
@@ -35,96 +34,108 @@ public class MessagingAPI implements AutoCloseable {
 //        Logger.getRootLogger().setLevel(Level.OFF);
     }
 
-//    public static void main(String[] args) {
-//        MessagingAPI api = new MessagingAPI();
+//    public static void main(String[] args) throws InterruptedException {
+//        MessagingAPI api = new MessagingAPI(ThreadCount.FOUR);
+//        MessagingAPI api2 = new MessagingAPI(ThreadCount.SYS_DEP);
+//        MessagingAPI api3 = new MessagingAPI();
+//        api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
+//        api2.subscribe().channels("channel3").execute();                // register api to listen to a channel
 //
-//        api.subscribe().channels("PlayerInfo").execute();
+//        ISubscribeCallback temp1 = new ISubscribeCallback() {
+//            @Override
+//            public void status(MessagingAPI api, MsgStatus status) {
 //
-//        api.publish().channel("PlayerInfo").message(new PlayerInfo()).execute();
+//            }
 //
-//        MessagingAPI api = null;
-//        MessagingAPI api2 = null;
-//        try {
-//            api = new MessagingAPI(ThreadCount.FOUR);
-//            api2 = new MessagingAPI(ThreadCount.SYS_DEP);
-//            api.subscribe().channels("channel1", "channel2").execute();     // register api to listen to a channel
-//            api2.subscribe().channels("channel3").execute();                // register api to listen to a channel
+//            @Override
+//            public void resolved(MessagingAPI api, MsgResultAPI result) {
+//                System.out.println("I GET EVERYTHING!");
+//            }
 //
-//            api.addEventListener(new ISubscribeCallback() {
-//                @Override
-//                public void status(MessagingAPI api, MsgStatus status) {
+//            @Override
+//            public void rejected(Exception e) {
 //
-//                }
+//            }
+//        };
 //
-//                @Override
-//                public void resolved(MessagingAPI api, MsgResultAPI result) {
-//                    System.out.println("IT WORKED!!! Message received from \"channel1\" and \"channel2\" on api");
-//                    System.out.println(result.getMessage());
-//                }
+//        ISubscribeCallback temp2 = new ISubscribeCallback() {
+//            @Override
+//            public void status(MessagingAPI api, MsgStatus status) {
 //
-//                @Override
-//                public void rejected(Exception e) {
+//            }
 //
-//                }
-//            }, "channel1", "channel2");
+//            @Override
+//            public void resolved(MessagingAPI api, MsgResultAPI result) {
+//                System.out.println("IT WORKED!!! Message received from \"channel1\" and \"channel2\" on api");
+//                System.out.println(result.getMessage());
+//            }
 //
-//            api.addEventListener(new ISubscribeCallback() {
-//                @Override
-//                public void status(MessagingAPI api, MsgStatus status) {
+//            @Override
+//            public void rejected(Exception e) {
 //
-//                }
+//            }
+//        };
 //
-//                @Override
-//                public void resolved(MessagingAPI api, MsgResultAPI result) {
-//                    System.out.println("IT WORKED!!! Message received from channel2 on api");
-//                    System.out.println(result.getMessage());
-//                }
+//        ISubscribeCallback temp3 = new ISubscribeCallback() {
+//            @Override
+//            public void status(MessagingAPI api, MsgStatus status) {
 //
-//                @Override
-//                public void rejected(Exception e) {
+//            }
 //
-//                }
-//            }, "channel2");
+//            @Override
+//            public void resolved(MessagingAPI api, MsgResultAPI result) {
+//                System.out.println("IT WORKED!!! Message received from channel2 on api");
+//                System.out.println(result.getMessage());
+//            }
 //
-//            api2.addEventListener(new ISubscribeCallback() {
-//                @Override
-//                public void status(MessagingAPI api, MsgStatus status) {
+//            @Override
+//            public void rejected(Exception e) {
 //
-//                }
+//            }
+//        };
 //
-//                @Override
-//                public void resolved(MessagingAPI api, MsgResultAPI result) {
-//                    System.out.println("IT WORKED!!! Message received from channel3 on api2");
-//                    System.out.println(result.getMessage());
-//                }
+//        ISubscribeCallback temp4 = new ISubscribeCallback() {
+//            @Override
+//            public void status(MessagingAPI api, MsgStatus status) {
 //
-//                @Override
-//                public void rejected(Exception e) {
+//            }
 //
-//                }
-//            }, "channel3");
+//            @Override
+//            public void resolved(MessagingAPI api, MsgResultAPI result) {
+//                System.out.println("IT WORKED!!! Message received from channel3 on api2");
+//                System.out.println(result.getMessage());
+//            }
 //
-//            // sending message to a channel
-//            api.publish().message(new TestClass("tim", "brown", new String[]{"one", "two", "three", "four"})).channel("channel1").execute();
+//            @Override
+//            public void rejected(Exception e) {
 //
-//            // sending message to a channel
-//            api.publish().message(new TestClass("johnny", "blond", new String[]{"one222222222222222222222", "two", "three", "four"})).channel("channel2").execute();
+//            }
+//        };
+//        api3.addEventListener(temp1);
+////        api3.removeEventListener(temp1);
 //
-//            // sending message to a channel
-//            api2.publish().message(new TestClass("kevin", "black", new String[]{"one333333333333333333333", "two", "three", "four"})).channel("channel3").execute();
+//        api.addEventListener(temp2, "channel1", "channel2");
+//        api.removeEventListener(temp2);
+//        api.addEventListener(temp3, "channel2");
+//        api.removeEventListener(temp3);
 //
-//            System.out.println("this statement was actually invoked last!!");
-//            Thread.sleep(5000);
-//            api.free();
-//            api2.free();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            System.out.println("end");
-//            if (api != null)
-//                api.free();
-//            if (api2 != null)
-//                api2.free();
-//        }
+//        api2.addEventListener(temp4, "channel3");
+//        api.removeEventListener(temp4);
+//
+//        // sending message to a channel
+//        api.publish().message(new TestClass("tim", "brown", new String[]{"one", "two", "three", "four"})).channel("channel1").execute();
+//
+//        // sending message to a channel
+//        api.publish().message(new TestClass("johnny", "blond", new String[]{"one222222222222222222222", "two", "three", "four"})).channel("channel2").execute();
+//
+//        // sending message to a channel
+//        api2.publish().message(new TestClass("kevin", "black", new String[]{"one333333333333333333333", "two", "three", "four"})).channel("channel3").execute();
+//
+//        System.out.println("this statement was actually invoked last!!");
+//        Thread.sleep(5000);
+//        api.free();
+//        api2.free();
+//        api3.free();
 //    }
 
     /**
@@ -227,7 +238,11 @@ public class MessagingAPI implements AutoCloseable {
      * @author Kord Boniadi
      */
     public void addEventListener(@NonNull ISubscribeCallback callback, @NonNull String... channels) {
-        EventManager.getInstance().addEventListener(this, callback, channels);
+        try {
+            EventManager.getInstance().addEventListener(this, callback, channels);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -283,7 +298,8 @@ public class MessagingAPI implements AutoCloseable {
             EventManager.getInstance().cleanup();
             buffer.close();
             mainSocket.close();
-            this.cc.action();
+            if (this.cc != null)
+                this.cc.action();
         } catch (SecurityException | IOException e) {
             e.printStackTrace();
         }
@@ -342,7 +358,8 @@ public class MessagingAPI implements AutoCloseable {
             EventManager.getInstance().cleanup();
             buffer.close();
             mainSocket.close();
-            this.cc.action();
+            if (this.cc != null)
+                this.cc.action();
         } catch (SecurityException | IOException e) {
             throw new Exception("Something went wrong in -> { io.github.API.proj.MessageAPI.class }");
         }

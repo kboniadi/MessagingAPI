@@ -8,10 +8,11 @@ import lombok.NonNull;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 final class EventManager {
-    private final HashMap<String, Set<ISubscribeCallback>> list;
+    private final Map<String, Set<ISubscribeCallback>> list;
     private final Set<ISubscribeCallback> globalList;
 
 
@@ -28,13 +29,14 @@ final class EventManager {
         return InstanceHolder.INSTANCE;
     }
 
-    void addEventListener(MessagingAPI api, ISubscribeCallback callback, String... channels) {
+    void addEventListener(MessagingAPI api, ISubscribeCallback callback, String... channels) throws IllegalArgumentException {
         if (channels.length == 0) {
             globalList.add(callback);
-        } else {
+        } else if (!globalList.contains(callback)) {
             for (var channel : channels)
                 list.computeIfAbsent(channel, k -> new HashSet<>()).add(callback);
-            callback.status(api, new MsgStatus(MsgStatusCategory.MsgConnectedCategory, MsgStatusOperation.MsgSubscribeOperation));
+        } else {
+            throw new IllegalArgumentException("that callback is already registered globally");
         }
         callback.status(api, new MsgStatus(MsgStatusCategory.MsgConnectedCategory, MsgStatusOperation.MsgSubscribeOperation));
     }
@@ -44,10 +46,14 @@ final class EventManager {
         if (channels.length == 0 && present) {
             globalList.remove(callback);
         } else if (channels.length == 0) {
-            list.forEach((key, value) -> {
-                value.remove(callback);
-                if (value.isEmpty()) list.remove(key);
-            });
+            var iter = list.entrySet().iterator();
+            while (iter.hasNext()) {
+                var entry = iter.next().getValue();
+                entry.remove(callback);
+                if (entry.isEmpty()) {
+                    iter.remove();
+                }
+            }
         } else if (!present) {
             for (var channel : channels) {
                 Set<?> reference = list.get(channel);

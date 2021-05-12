@@ -25,6 +25,8 @@ test {
     useJUnitPlatform()
 }
 
+//mainClassName = 'io.github.API.MessagingAPI'
+
 sourceSets {
     main {
         output.setResourcesDir(java.outputDir)
@@ -40,5 +42,3 @@ jar {
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-
-//mainClassName = 'io.github.API.MessagingAPI'
