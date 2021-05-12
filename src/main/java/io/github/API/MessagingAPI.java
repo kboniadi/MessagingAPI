@@ -237,7 +237,11 @@ public class MessagingAPI implements AutoCloseable {
      * @author Kord Boniadi
      */
     public void removeEventListener(@NonNull ISubscribeCallback callback, @NonNull String... channels) {
-        EventManager.getInstance().removeEventListener(this, callback, channels);
+        try {
+            EventManager.getInstance().removeEventListener(this, callback, channels);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

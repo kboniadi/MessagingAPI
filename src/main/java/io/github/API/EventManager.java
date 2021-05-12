@@ -11,11 +11,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 final class EventManager {
-    private final HashMap<String, Set<ISubscribeCallback>> list = new HashMap<>();
+    private final HashMap<String, Set<ISubscribeCallback>> list;
+    private final Set<ISubscribeCallback> globalList;
 
 
     private static class InstanceHolder {
         private static final EventManager INSTANCE = new EventManager();
+    }
+
+    private EventManager() {
+        list = new HashMap<>();
+        globalList = new HashSet<>();
     }
 
     static EventManager getInstance() {
@@ -23,18 +29,26 @@ final class EventManager {
     }
 
     void addEventListener(MessagingAPI api, ISubscribeCallback callback, String... channels) {
-        for (var channel : channels)
-            list.computeIfAbsent(channel, k -> new HashSet<>()).add(callback);
+        if (channels.length == 0) {
+            globalList.add(callback);
+        } else {
+            for (var channel : channels)
+                list.computeIfAbsent(channel, k -> new HashSet<>()).add(callback);
+            callback.status(api, new MsgStatus(MsgStatusCategory.MsgConnectedCategory, MsgStatusOperation.MsgSubscribeOperation));
+        }
         callback.status(api, new MsgStatus(MsgStatusCategory.MsgConnectedCategory, MsgStatusOperation.MsgSubscribeOperation));
     }
 
-    void removeEventListener(MessagingAPI api, ISubscribeCallback callback, String... channels) {
-        if (channels.length == 0) {
+    void removeEventListener(MessagingAPI api, ISubscribeCallback callback, String... channels) throws IllegalArgumentException {
+        boolean present = globalList.contains(callback);
+        if (channels.length == 0 && present) {
+            globalList.remove(callback);
+        } else if (channels.length == 0) {
             list.forEach((key, value) -> {
                 value.remove(callback);
                 if (value.isEmpty()) list.remove(key);
             });
-        } else {
+        } else if (!present) {
             for (var channel : channels) {
                 Set<?> reference = list.get(channel);
                 if (reference != null) {
@@ -43,6 +57,8 @@ final class EventManager {
                     if (reference.isEmpty()) list.remove(channel);
                 }
             }
+        } else {
+            throw new IllegalArgumentException("you can not remove individual channels for this callback");
         }
         callback.status(api, new MsgStatus(MsgStatusCategory.MsgClosedCategory, MsgStatusOperation.MsgUnsubscribeOperation));
     }
@@ -54,6 +70,9 @@ final class EventManager {
                 k.resolved(api, new MsgResultAPI(channel, json, publisherUuid));
             });
         }
+        globalList.forEach((k) -> {
+            k.resolved(api, new MsgResultAPI(channel, json, publisherUuid));
+        });
     }
 
     boolean hasListeners(@NonNull String channel) {
@@ -70,6 +89,10 @@ final class EventManager {
                 callback.status(null, new MsgStatus(MsgStatusCategory.MsgClosedCategory, MsgStatusOperation.MsgClosingOperation));
             });
         });
+        globalList.forEach((callback) -> {
+            callback.status(null, new MsgStatus(MsgStatusCategory.MsgClosedCategory, MsgStatusOperation.MsgClosingOperation));
+        });
         list.clear();
+        globalList.clear();
     }
 }
