@@ -27,7 +27,7 @@ public class MessagingAPI implements AutoCloseable {
     @Getter
     private final String uuid = UUID.randomUUID().toString();
     private volatile boolean exit = false;
-    private CloseCallback cc;
+    private Runnable runnable = null;
 
     static {
         PropertyConfigurator.configure(MessagingAPI.class.getResource("configs/log4j.properties"));
@@ -183,7 +183,10 @@ public class MessagingAPI implements AutoCloseable {
             } finally {
                 LOGGER.info("freeing up resources...");
                 LOGGER.info("Closed.");
-                free();
+                if (!exit)
+                    free();
+                if (this.runnable != null)
+                    this.runnable.run();
             }
 
         }).start();
@@ -283,8 +286,8 @@ public class MessagingAPI implements AutoCloseable {
         return new PublishChain(getUuid(), "Message", this.buffer);
     }
 
-    public void onclose(CloseCallback cc) {
-        this.cc = cc;
+    public void onclose(Runnable runnable) {
+        this.runnable = runnable;
     }
 
     /**
@@ -298,8 +301,6 @@ public class MessagingAPI implements AutoCloseable {
             EventManager.getInstance().cleanup();
             buffer.close();
             mainSocket.close();
-            if (this.cc != null)
-                this.cc.action();
         } catch (SecurityException | IOException e) {
             e.printStackTrace();
         }
@@ -358,8 +359,6 @@ public class MessagingAPI implements AutoCloseable {
             EventManager.getInstance().cleanup();
             buffer.close();
             mainSocket.close();
-            if (this.cc != null)
-                this.cc.action();
         } catch (SecurityException | IOException e) {
             throw new Exception("Something went wrong in -> { io.github.API.proj.MessageAPI.class }");
         }
