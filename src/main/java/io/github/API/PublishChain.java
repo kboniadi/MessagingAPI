@@ -2,7 +2,12 @@ package io.github.API;
 
 import io.github.API.utils.IOWrapper;
 import io.github.API.utils.GsonWrapper;
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public class PublishChain implements IMessage, IChannel, IExecute {
     private final String CHANNEL_KEY = "channels";
@@ -44,10 +49,17 @@ public class PublishChain implements IMessage, IChannel, IExecute {
     @Override
     public void execute() {
         validate();
-        JSONObject json = new JSONObject(GsonWrapper.toJson(this.message));
+        JSONObject temp = null;
+        if (!(this.message instanceof  Object[]) &&
+                !(this.message instanceof Collection) &&
+                !(this.message instanceof Map)) {
+            temp = new JSONObject(this.message);
+        }
+        JSONObject json = new JSONObject();
         json.put(CHANNEL_KEY, this.channel);
         json.put("uuid", this.publisherUuid);
         json.put("type", this.type);
+        json.put("message", (temp == null) ? this.message : temp);
         buffer.writeLine(json.toString());
     }
 

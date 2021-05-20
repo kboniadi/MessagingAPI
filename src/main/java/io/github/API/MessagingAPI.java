@@ -172,7 +172,11 @@ public class MessagingAPI implements AutoCloseable {
                 while (!exit) {
                     if ((value = buffer.readLine()) != null) {
                         JSONObject newJson = new JSONObject(value);
-                        EventManager.getInstance().publish(this, newJson.remove("uuid").toString(), newJson.remove("channels").toString(), newJson.toString());
+                        EventManager.getInstance()
+                                .publish(this,
+                                        newJson.get("uuid").toString(),
+                                        newJson.get("channels").toString(),
+                                        newJson.get("message").toString());
                     } else {
                         System.out.println("Server returned null, something is wrong");
                         throw new IOException("Server may have crashed");

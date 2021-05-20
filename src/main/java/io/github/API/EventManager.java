@@ -6,10 +6,7 @@ import io.github.API.messagedata.MsgStatusCategory;
 import io.github.API.messagedata.MsgStatusOperation;
 import lombok.NonNull;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 final class EventManager {
     private final Map<String, Set<ISubscribeCallback>> list;

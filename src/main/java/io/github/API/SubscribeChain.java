@@ -41,7 +41,7 @@ public class SubscribeChain implements IChannels, IExecute {
     public void execute() {
         validate();
         JSONObject json = new JSONObject();
-        json.put(CHANNEL_KEY, new JSONArray(channels));
+        json.put(CHANNEL_KEY, channels);
         json.put("type", this.type);
         buffer.writeLine(json.toString());
     }
