@@ -294,6 +294,10 @@ public class MessagingAPI implements AutoCloseable {
         this.runnable = runnable;
     }
 
+    public boolean isAlive() {
+        return !exit;
+    }
+
     /**
      * Free's up api allocated resources
      * @author Kord Boniadi
