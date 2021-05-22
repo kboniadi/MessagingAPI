@@ -1,6 +1,5 @@
 package io.github.API;
 
-import io.github.API.messagedata.ThreadCount;
 import io.github.API.utils.IOWrapper;
 import lombok.Getter;
 import lombok.NonNull;
@@ -15,17 +14,15 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class MessagingAPI implements AutoCloseable {
     private static final Logger LOGGER = Logger.getLogger(MessagingAPI.class);
     private final String serverAddress = "localhost";       // IP For remote Server
-    private final ExecutorService server;                   // Thread pool for DB calls
+//    private final ExecutorService server;                   // Thread pool for DB calls
     private Socket mainSocket;                              // Persistent Server connection for api
     private IOWrapper buffer;                               // read/write wrapper for tcp throughput
     @Getter
-    private final String uuid = UUID.randomUUID().toString();
+    private final String uuid;
     private volatile boolean exit = false;
     private Runnable runnable = null;
 
@@ -143,16 +140,17 @@ public class MessagingAPI implements AutoCloseable {
      * @author Kord Boniadi
      */
     public MessagingAPI() {
-        this(ThreadCount.FOUR);
+        this(UUID.randomUUID().toString());
     }
 
     /**
      * Constructor
-     * @param count number of threads to use in pool
+     * @param uuid custom uuid to use for api instance
      * @author Kord Boniadi
      */
-    public MessagingAPI(ThreadCount count) {
-        server = Executors.newFixedThreadPool(count.toInt());
+    public MessagingAPI(String uuid) {
+        this.uuid = uuid;
+//        server = Executors.newFixedThreadPool(count.toInt());
         try {
             mainSocket = new Socket(serverAddress, 9000);
             buffer = new IOWrapper.Builder()
@@ -305,7 +303,7 @@ public class MessagingAPI implements AutoCloseable {
     public void free() {
         try {
             exit = true;
-            server.shutdown();
+//            server.shutdown();
             EventManager.getInstance().cleanup();
             buffer.close();
             mainSocket.close();
@@ -363,7 +361,7 @@ public class MessagingAPI implements AutoCloseable {
     public void close() throws Exception {
         try {
             exit = true;
-            server.shutdown();
+//            server.shutdown();
             EventManager.getInstance().cleanup();
             buffer.close();
             mainSocket.close();

@@ -1,5 +1,6 @@
 package io.github.API.messagedata;
 
+@Deprecated
 public enum ThreadCount {
     ONE(1),
     TWO(2),
