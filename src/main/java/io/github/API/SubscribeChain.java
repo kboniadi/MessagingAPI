@@ -1,7 +1,6 @@
 package io.github.API;
 
 import io.github.API.utils.IOWrapper;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class SubscribeChain implements IChannels, IExecute {

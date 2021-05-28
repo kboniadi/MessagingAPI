@@ -163,6 +163,7 @@ public class MessagingAPI implements AutoCloseable {
             LOGGER.info("Closed.");
             free();
         }
+        buffer.writeLine(new JSONObject().put("type", "Register").put("uuid", this.uuid).toString());
 
         new Thread(() -> {  // api listener thread
             try {
